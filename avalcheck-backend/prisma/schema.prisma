@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id        Int           @id @default(autoincrement())
+  cellphone String        @unique
+  wallet_address String   
+  status                  statusUser @default(ACTIVE)
+  role                    roleUser   @default(USER)
+  openai_chat             String?
+  openai_chat_creation    String?
+  xpub_main_avalanche_wallet        String?
+  mnemonic_main_avalanche_wallet    String?
+  created_address_avalanche_wallet  String?
+  created_by              Int?
+  created_at              DateTime @default(now())
+  updated_by              Int?
+  updated_at              DateTime?
+}
+
+enum statusUser {
+  ACTIVE
+  DELETED
+}
+
+enum roleUser {
+  USER
+  ADMIN
+}
+
+model surveys {
+  id                      Int           @id @default(autoincrement())
+  topic                   String?
+  question                String        @unique
+  status                  statusSurvey  @default(ACTIVE)
+  created_by              Int?
+  created_at              DateTime      @default(now())
+  updated_by              Int?
+  updated_at              DateTime?
+
+  surveyAnswers usersurveyanswers[] @relation("SurveyAnswers")
+}
+
+enum statusSurvey {
+  ACTIVE
+  DELETED
+}
+
+model usersurveyanswers {
+  id                      Int   @id @default(autoincrement())
+  id_question             Int       
+  question                String    
+  won                     Boolean @default(false)
+  address_gift            String?
+  amount_gift             String?
+  currency_gift           String?
+  tx_gift                 String?
+  created_by              Int?
+  created_at              DateTime @default(now())
+  updated_by              Int?
+  updated_at              DateTime?
+
+  survey        surveys     @relation("SurveyAnswers", fields: [id_question], references: [id])
+}
+
+model certificatequestions {
+  id                      Int   @id @default(autoincrement())
+  level                   certificateLevel
+  question                String    
+  created_by              Int?
+  created_at              DateTime @default(now())
+  updated_by              Int?
+  updated_at              DateTime?
+
+  certificatequestionanswers certificatequestionanswers[] @relation("QuestionAnswers")
+}
+
+enum certificateLevel {
+  BASIC
+  MEDIUM
+  ADVANCED
+}
+
+model certificatequestionanswers {
+  id                      Int   @id @default(autoincrement())
+  id_certificate_question Int
+  question                String    
+  answer                  String    
+  valid                   Boolean @default(false)
+  created_by              Int?
+  created_at              DateTime @default(now())
+  updated_by              Int?
+  updated_at              DateTime?
+
+  certificateQuestion     certificatequestions @relation("QuestionAnswers", fields: [id_certificate_question], references: [id])
+}
+
+model certificatequestionanswerusers {
+  id                      Int   @id @default(autoincrement())
+  id_certificate_question Int
+  id_answer               Int    
+  question                String    
+  answer                  String    
+  valid                   Boolean @default(false)
+  created_by              Int?
+  created_at              DateTime @default(now())
+  updated_by              Int?
+  updated_at              DateTime?
+}
