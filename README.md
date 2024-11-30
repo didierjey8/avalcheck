@@ -3,7 +3,7 @@
 ## Demo
 
 - **Live Demo**: [https://avalcheck.com](https://avalcheck.com)
-- **Video Presentation**: [Link to video](#)
+- **Video Presentation**: [https://platzi.com/](https://avalcheck.com)
 
 Avalcheck is an innovative blockchain-based platform designed to provide a comprehensive learning and transaction experience for users. This monorepo contains two key components: `avalcheck-frontend` and `avalcheck-backend`. Below, you'll find detailed information about each component and how they work together to deliver an exceptional user experience.
 
