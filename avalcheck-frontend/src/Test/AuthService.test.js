@@ -1,7 +1,7 @@
 import axios from 'axios';
-import authService from './../Services/AuthService'; // Ajusta la ruta según tu proyecto
+import authService from './../Services/AuthService'; 
 
-jest.mock('axios'); // Mock de axios para evitar solicitudes reales
+jest.mock('axios'); 
 
 describe('authService', () => {
   let service;

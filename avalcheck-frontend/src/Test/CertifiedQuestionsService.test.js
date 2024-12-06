@@ -1,7 +1,7 @@
 import axios from 'axios';
-import CertifiedQuestionsService from './../Services/CertifiedQuestionsService'; // Ajusta la ruta según tu proyecto
+import CertifiedQuestionsService from './../Services/CertifiedQuestionsService';
 
-jest.mock('axios'); // Mockear axios para evitar solicitudes reales
+jest.mock('axios'); 
 
 describe('CertifiedQuestionsService', () => {
   let service;

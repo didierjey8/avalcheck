@@ -1,7 +1,7 @@
 import axios from 'axios';
-import chatService from './../Services/ChatService'; // Ajusta la ruta según tu proyecto
+import chatService from './../Services/ChatService';
 
-jest.mock('axios'); // Mockear axios para evitar solicitudes reales
+jest.mock('axios'); 
 
 describe('chatService', () => {
   let service;

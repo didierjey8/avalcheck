@@ -1,7 +1,6 @@
 import axios from 'axios';
-import Surveys from './../Services/Surveys'; // Ajusta la ruta según tu proyecto
-
-jest.mock('axios'); // Mockear axios para evitar solicitudes reales
+import Surveys from './../Services/Surveys'; 
+jest.mock('axios'); 
 
 describe('Surveys', () => {
   let service;
