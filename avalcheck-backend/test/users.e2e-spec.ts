@@ -336,7 +336,7 @@ describe('SurveysController (E2E)', () => {
   let prismaMock: any;
   
   beforeAll(async () => {
-    accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nywicm9sZSI6IlVTRVIiLCJpYXQiOjE3MzIxMTIyNzMsImV4cCI6MTczMjI5MjI3M30.IzDWr1NWOfcRJskoD8BGUT5-0rv9rhkKAoomARTXuB0';
+    accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzMzNDA1OTA3LCJleHAiOjE3MzM1ODU5MDd9.k9ptvqCV4VSicNC4KhH5ZDYoOOgPKx36Pa4-EXln9is';
 
     prismaMock = {
       surveys: {

@@ -28,6 +28,8 @@ model users {
   created_at              DateTime @default(now())
   updated_by              Int?
   updated_at              DateTime?
+  
+  usercreationchat usercreationchat[] @relation("userChat")
 }
 
 enum statusUser {
@@ -118,4 +120,23 @@ model certificatequestionanswerusers {
   created_at              DateTime @default(now())
   updated_by              Int?
   updated_at              DateTime?
+}
+
+model usercreationchat {
+  id        Int           @id @default(autoincrement())
+  id_user   Int           
+  origin    usercreationoriginchat @default(USER)
+  message   String   
+  data      String
+  created_by              Int?
+  created_at              DateTime @default(now())
+  updated_by              Int?
+  updated_at              DateTime?
+
+  userChat     users @relation("userChat", fields: [id_user], references: [id])
+}
+
+enum usercreationoriginchat {
+  USER
+  BOT
 }

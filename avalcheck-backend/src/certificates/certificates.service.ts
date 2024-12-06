@@ -95,18 +95,32 @@ export class CertificatesService {
       },
       body: `{"metadata":{"name":"AVALANCHE CERTIFICATE OF ACHIEVEMENT ${level.toLocaleLowerCase()} - BY AVALCHECK NFT","image":"${PNGCertificate}","description":"For successfully completing the Avalanche 9000 examination, demonstrating exceptional knowledge in subnet deployment, cross-chain communication, and ${level.toLocaleLowerCase()} smart contract development within the Avalanche ecosystem.","attributes":[{"display_type":"number","trait_type":"scrore","value":"${score}"}]},"recipient":"avalanche:${user.wallet_address}","sendNotification":true,"locale":"en-US","reuploadLinkedFiles":true,"compressed":true}`
     };
-    ``
+
     let NFTCertificate;
-    
+
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
     try {
       const response = await fetch(`https://www.crossmint.com/api/2022-06-09/collections/${process.env.CROSSMINT_COLLECTION_NFT_ID}/nfts`, options);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       NFTCertificate = await response.json();
-      NFTCertificate = NFTCertificate?.onChain?.contractAddress;
-      NFTCertificate = `https://snowtrace.io/nft/${NFTCertificate}/1?chainid=43114&type=erc721`;
 
+      const optionsGet = {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': process.env.CROSSMINT_KEY, 
+          'Content-Type': 'application/json'
+        }
+      };
+      
+      await sleep(40000);
+
+      let NFTCertificateID:any = await fetch(`https://www.crossmint.com/api/2022-06-09/collections/${process.env.CROSSMINT_COLLECTION_NFT_ID}/nfts/${NFTCertificate.id}`, optionsGet);
+      NFTCertificateID = await NFTCertificateID.json();
+      
+      NFTCertificate = `https://snowtrace.io/nft/${process.env.CONTRACT_ADDRESS_COLLECTION_NFT_ID}/${NFTCertificateID?.onChain?.tokenId}?chainid=43114&type=erc721`;
     } catch (error) {
       console.error('Error fetching NFT Certificate:', error.message || error);
     }

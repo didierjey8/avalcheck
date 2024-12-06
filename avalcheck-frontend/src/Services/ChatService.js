@@ -17,8 +17,6 @@ class chatService {
   }
 
   async sendMessage({ data, token }) {
-    console.log(token);
-
     const config = this.generateConfig({
       data: data,
       method: 'post',
@@ -29,13 +27,44 @@ class chatService {
       },
     });
 
-    return axios.request(config);
+    try {
+      return axios.request(config);
+    } catch (error) {
+      if (error.response.status === 401) {  
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level'); 
+        window.location.href="/";
+      } 
+    }
   }
 
-  async sendMessageCreation({ data, token }) {
+  async sendMessageCreation({ data, token, contentType }) {
     const config = this.generateConfig({
       data: data,
       method: 'post',
+      url: '/users/create',
+      headers: {
+        'Content-Type': contentType ? contentType : 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    try {
+      return axios.request(config);
+    } catch (error) {
+      if (error.response.status === 401) {  
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level'); 
+        window.location.href="/";
+      } 
+    }
+  }
+
+  async readMessagesCreation({ token }) {
+    const config = this.generateConfig({
+      method: 'get',
       url: '/users/create',
       headers: {
         'Content-Type': 'application/json',
@@ -43,7 +72,38 @@ class chatService {
       },
     });
 
-    return axios.request(config);
+    try {
+      return axios.request(config);
+    } catch (error) {
+      if (error.response.status === 401) {  
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level'); 
+        window.location.href="/";
+      } 
+    }
+  }
+  
+  async removeMessagesCreation({ token }) {
+    const config = this.generateConfig({
+      method: 'delete',
+      url: '/users/create',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    try {
+      return axios.request(config);
+    } catch (error) {
+      if (error.response.status === 401) {  
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level'); 
+        window.location.href="/";
+      } 
+    }
   }
 
   async sendMessageTransactions({ data, token }) {
@@ -57,7 +117,16 @@ class chatService {
       },
     });
 
-    return axios.request(config);
+    try {
+      return axios.request(config);
+    } catch (error) {
+      if (error.response.status === 401) {  
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level'); 
+        window.location.href="/";
+      } 
+    }
   }
 }
 

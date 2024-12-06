@@ -16,7 +16,6 @@ const Card = ({ children, className, ...props }) => (
 );
 
 const SurveysModules = ({ data }) => {
-  console.log(data);
   const { phoneUser } = useContext(AuthContext);
   const { token } = useContext(AuthContext);
   const { isConnected } = useAccount();
@@ -32,7 +31,6 @@ const SurveysModules = ({ data }) => {
       token,
     })
       .then((res) => {
-        console.log(res);
         toast.success(`Answer sent successfully`);
       })
       .catch((err) => {
@@ -170,8 +168,6 @@ const CreateTransaction_CreateWalletModules = ({ data }) => {
     'modify',
   ];
 
-  console.log(data);
-
   // const handleCopy = async () => {
   //   try {
   //     await navigator.clipboard.writeText(recoveryPhrase.join(' '));
@@ -205,7 +201,7 @@ const CreateTransaction_CreateWalletModules = ({ data }) => {
                 <span className="text-gray-400">{data?.address}</span>
               </h1>
               <h1 className="text-white text-sm font-semibold bg-[#291E30] p-4 rounded-t-2xl break-all">
-                Xpriv: <span className="text-gray-400">{data?.xpriv}</span>
+                Private Key: <span className="text-gray-400">{data?.xpriv}</span>
               </h1>
               <h1 className="text-white text-sm font-semibold bg-[#291E30] p-4 rounded-t-2xl break-all">
                 Xpub: <span className="text-gray-400">{data?.xpub}</span>
@@ -242,6 +238,8 @@ const CreateTransaction_CreateWalletModules = ({ data }) => {
 const ResponseGraficTranstaction = ({ data }) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
   const values = [50, 65, 45, 90, 75, 60, 55];
+  
+  data = !data?.txs?.length ? [] : data;
 
   return (
     <div className="bg-[#1D1225] w-full">
@@ -258,19 +256,19 @@ const ResponseGraficTranstaction = ({ data }) => {
               <div className="bg-[#291E30] rounded-xl p-4">
                 <p className="text-gray-400 text-sm">Total Transactions</p>
                 <p className="text-white text-2xl font-semibold mt-1">
-                  {data?.length}
+                  {data?.txs?.length}
                 </p>
               </div>
               <div className="bg-[#291E30] rounded-xl p-4">
                 <p className="text-gray-400 text-sm">Total Volume</p>
                 <p className="text-white text-2xl font-semibold mt-1">
-                  4.54 Avax
+                  {(data?.volume||0).toFixed(4)} Avax
                 </p>
               </div>
               <div className="bg-[#291E30] rounded-xl p-4">
                 <p className="text-gray-400 text-sm">Gas Spent</p>
                 <p className="text-white text-2xl font-semibold mt-1">
-                  0.54 Avax
+                  {(data?.gasUsed||0).toFixed(4)} Avax
                 </p>
               </div>
             </div>
@@ -286,7 +284,7 @@ const ResponseGraficTranstaction = ({ data }) => {
 
               {/* Transaction List */}
               <div className="space-y-2">
-                {data?.map((transaction, index) => (
+                {data?.txs?.map((transaction, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between bg-[#291E30] rounded-xl p-4"

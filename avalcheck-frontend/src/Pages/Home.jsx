@@ -1,7 +1,8 @@
+import React from 'react';
 import { Mic } from 'lucide-react';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAccount } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import AuthService from '../Services/AuthService';
@@ -78,8 +79,12 @@ const CardsQuestions = ({ title, description, image, link }) => {
             alt={title}
           />
         </div>
-        <h3 className="mb-2 text-base sm:text-lg font-semibold line-clamp-2 break-words">{title}</h3>
-        <p className="text-xs sm:text-sm text-gray-400 line-clamp-3 break-words">{description}</p>
+        <h3 className="mb-2 text-base sm:text-lg font-semibold line-clamp-2 break-words">
+          {title}
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-400 line-clamp-3 break-words">
+          {description}
+        </p>
       </div>
     </div>
   );
@@ -90,6 +95,8 @@ export default function Home() {
   const [phoneHotUser, setPhoneHotUser] = useState('');
   const navigate = useNavigate();
   const modal = useAppKit();
+  const { disconnect } = useDisconnect();
+  const filePhoneRef = useRef(null);
   const { address: accountConnected, isConnected } = useAccount();
   const { token, setToken, phoneUser, setPhoneUser } = useContext(AuthContext);
 
@@ -97,7 +104,7 @@ export default function Home() {
     if (e.key === 'Enter') {
       setMessage('');
       localStorage.setItem('initialMessage', e.target.value);
-      navigate('/LearnAndEarn');
+      navigate('/CreateTransaction');
     }
   };
 
@@ -122,12 +129,13 @@ export default function Home() {
   useEffect(() => {
     if (isConnected && phoneHotUser && accountConnected && !token) {
       authFn();
-    } else if (!isConnected && !accountConnected && token) {
+    } else if ((!isConnected && !accountConnected && token) || !token) {
       setToken('');
       setPhoneUser('');
       localStorage.removeItem('phone_user');
       localStorage.removeItem('access_token');
       localStorage.removeItem('Certification_Level');
+      disconnect();
     }
   }, [isConnected, phoneHotUser, accountConnected]);
 
@@ -174,6 +182,7 @@ export default function Home() {
           <div className="w-fit mx-auto">
             <PhoneInput
               country={'us'}
+              ref={filePhoneRef}
               disabled={isConnected || phoneUser ? true : false}
               value={phoneHotUser ? phoneHotUser : phoneUser}
               inputStyle={{
@@ -207,7 +216,12 @@ export default function Home() {
                 cursor: 'pointer',
               }}
               onClick={() => {
-                if (phoneHotUser) modal.open();
+                if (phoneHotUser) {
+                  modal.open();
+                } else {
+                  toast.warning(`First put your phone number. Please`);
+                  filePhoneRef.current.numberInputRef.focus();
+                }
               }}
             >
               Connect Wallet
@@ -228,7 +242,6 @@ export default function Home() {
 
         {/* Feature Cards */}
         <div className="grid gap-4 sm:gap-6 pt-1 pb-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto px-4 place-items-center sm:place-items-start">
-
           {/* Learn & Earn Card */}
           <CardsQuestions
             title={cardsQuestions[0].title}

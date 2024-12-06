@@ -231,22 +231,36 @@ export class UsersService {
     fromPrivateKey: string, 
     nameL1: string, 
     tokenNameL1: string, 
-    tokenSymbolL1: string
+    tokenSymbolL1: string,
+    imageToNFT: any
   ) {
     const decoded = this.jwtService.verify(token);
     
     const user = await this.prisma.users.findUnique({ where: { id: Number(decoded.id) } });
+    
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    
+    if(message&&actionUser!="CREATE_NFT_UPLOAD"){
+      await this.prisma.usercreationchat.create({
+        data: {
+          id_user: user.id,
+          origin: 'USER',
+          message: message,
+          data: ''
+        },
+      });
+    }
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    let action:any = actionUser;
+    let action:any = actionUser ? {operation: actionUser} : false;
 
     if(!action){
       let OPENAI_CHAT_CREATION:any = user.openai_chat_creation;
       
-      let PROMPT = `You are an expert in the Avalanche network who, based on the user's message, must determine if they want to create an L1, a Wallet, a Transaction, query a transaction, Save Funds, Stake Funds, Swap Tokens, Buy Cryptocurrency, Create contract, Explain contract or discuss another topic.
+      let PROMPT = `You are an expert in the Avalanche network who, based on the user's message, must determine if they want to create an L1, a Wallet, a Transaction, query a transaction, Save Funds, Stake Funds, Swap Tokens, Buy Cryptocurrency, Create contract, Explain contract, Create NFT, Query TX from address or Discuss another topic related to Avalanche, no other subject. It's important to prioritize the previous topics (Wallet, a Transaction, query a transaction, Save Funds, Stake Funds, Swap Tokens, Buy Cryptocurrency, Create contract, Explain contract, Create NFT, Query TX from address). In the end, analyze if it's a query about Avalanche to provide an answer.
       
       Please provide brief messages to users, with a maximum of 50 tokens.
 
@@ -255,7 +269,7 @@ export class UsersService {
       Respond only in the following JSON format:
 
       { 
-        "operation": "QUERY_TX" // Here, use one of these options: L1, WALLET, TX, STAKING_FUNDS, SAVING_FUNDS, QUERY_TX, SWAP, BUY_CRYPTO, EXPLAIN_CONTRACT, CREATE_CONTRACT, or OTHER 
+        "operation": "QUERY_TX" // Here, use one of these options: L1, WALLET, TX, STAKING_FUNDS, SAVING_FUNDS, QUERY_TX, SWAP, BUY_CRYPTO, EXPLAIN_CONTRACT, CREATE_CONTRACT, CREATE_NFT, QUERY_TX_ADDRESS, KNOWLEDGE_AVALANCHE or OTHER 
         "data": // This property must be a JSON object with the relevant data for each case. Details are explained below. 
       }
 
@@ -286,6 +300,12 @@ export class UsersService {
       { 
         "contractSpecifications": (contract functionalities specifications)
       }
+        
+      For QUERY_TX_ADDRESS, data should be:
+
+      { 
+        "addressQueryTx": (address to query tx. ONLY Put address if user specify that if else let empty)
+      }
 
       For EXPLAIN_CONTRACT, data should be:
 
@@ -296,13 +316,28 @@ export class UsersService {
       For STAKING_FUNDS, data should be:
 
       { 
-        "amounTo": (avax amount to staking, never use another token, only AVAX)
+        "amountTo": (avax amount to staking, never use another token, only AVAX, put here only number, remove token symbol. Put number if user specify the amount if else put zero)
       }
 
       For SAVING_FUNDS, data should be:
 
       { 
-        "amounTo": (avax amount to saving, never use another token, only AVAX)
+        "amountTo": (avax amount to saving, never use another token, only AVAX, put here only number, remove token symbol. Put number if user specify the amount if else put zero)
+      }
+
+      For KNOWLEDGE_AVALANCHE, data should be:
+
+      { 
+        "answer": (response from you to the question regarding avalanche)
+      }
+
+      For CREATE_NFT, data should be:
+
+      { 
+        "name": (The name of your NFT (Max length: 32)),
+        "description": (A brief description of the NFT (Max length: 64)),
+        "attributes": [{"display_type":"number","trait_type":"scrore","value":"1"}, {"display_type":"number","trait_type":"scrore2","value":"2"}](Attributes to your NFT only numbers, always display_type is number in all attributes),
+        "recipient": "avalanche:x000", (Avalanche wallet address to recipient NFT, Always recipient preceding avalanche:)
       }
         
       For SWAP, data should be:
@@ -310,7 +345,7 @@ export class UsersService {
       { 
         "tokenFromSymbol": (symbol token from on avalanche network, but user maybe send only address token, you translate to symbol),
         "tokenFrom": (address token from on avalanche network, but user maybe send only name, you translate to address),
-        "amounTo": (token from amount to swap),
+        "amountTo": (token from amount to swap),
         "tokenTo": (address token to on avalanche network, but user maybe send only name, you translate to address),
         "tokenToSymbol": (symbol token to on avalanche network, but user maybe send only address token, you translate to symbol)
       }
@@ -322,17 +357,21 @@ export class UsersService {
       And the response must be:
 
       { 
-        "operation": "QUERY_TX" // Here, use one of these options: L1, WALLET, TX, STAKING_FUNDS, SAVING_FUNDS, QUERY_TX, SWAP, BUY_CRYPTO, EXPLAIN_CONTRACT, CREATE_CONTRACT, or OTHER 
+        "operation": "QUERY_TX" // Here, use one of these options: L1, WALLET, TX, STAKING_FUNDS, SAVING_FUNDS, QUERY_TX, SWAP, BUY_CRYPTO, EXPLAIN_CONTRACT, CREATE_CONTRACT, CREATE_NFT, QUERY_TX_ADDRESS or OTHER 
         "error": // Error message with instructions for the user 
       }
 
       Do not respond about other topics.
+
+      When asked what you can do, you must specifically include the allowed operations.
 
       After interpreting the user's message and identifying what they are looking for, limit your response strictly to one of the structures mentioned above.
 
       Use the current date: ${new Date()}
 
       The user's message is: ${message}
+      
+      ${(firstMessage==false?"Please consider the user's previous messages within the context. Do not ignore the conversation thread.":"")}
 
       In the response, do not add the word json; provide only the formatted JSON on string for process on JSON.parse.`;
 
@@ -387,7 +426,7 @@ export class UsersService {
       action = JSON.parse(data[0].content);
     }
     
-    let messageSend = "I'm sorry, but I'm currently set up to allow you to create a L1, a Wallet, a Transaction, query a transaction, Save Funds, Stake Funds, Swap Tokens, Buy Cryptocurrency, Create contract, Explain contract. I'm not configured to perform any other actions.";
+    let messageSend = "I'm currently set up to allow you to create a L1, a Wallet, a Transaction, query a transaction, Save Funds, Stake Funds, Swap Tokens, Buy Cryptocurrency, Create contract, Explain contract, Create NFT.";
     let extra: any = {};
 
     switch(action?.operation){
@@ -477,7 +516,7 @@ export class UsersService {
         let created_address_avalanche_wallet = user.created_address_avalanche_wallet;
 
         if(!xpub_main_avalanche_wallet&&!mnemonic_main_avalanche_wallet&&!created_address_avalanche_wallet){
-          const responseMainWalletAvalanche = await axios.get('https://api.tatum.io/v3/avalanche/wallet', {
+          /*const responseMainWalletAvalanche = await axios.get('https://api.tatum.io/v3/avalanche/wallet', {
             headers: {
               'Authorization': `Bearer ${process.env.API_KEY_TATUM}`,
               'Content-Type': 'application/json'
@@ -503,7 +542,7 @@ export class UsersService {
               mnemonic_main_avalanche_wallet, 
               created_address_avalanche_wallet
             },
-          });
+          });*/
         }
         
         const responsePrivWalletAvalanche = await axios.post(`https://api.tatum.io/v3/avalanche/wallet/priv`,{index: 0, mnemonic: mnemonic_main_avalanche_wallet}, {
@@ -514,6 +553,9 @@ export class UsersService {
         });
 
         messageSend = `The Avalanche account address from extended public key was created! \n\n
+        `;
+        
+        /*messageSend = `The Avalanche account address from extended public key was created! \n\n
           XPUB: ${xpub_main_avalanche_wallet} \n
           MNEMONIC: ${mnemonic_main_avalanche_wallet} \n
           ADDRESS: ${created_address_avalanche_wallet} \n
@@ -522,14 +564,16 @@ export class UsersService {
           Store your wallet keys and backup information in a secure location: Consider a dedicated hardware wallet, a secure password manager, or another safe offline method. \n
           Do not share or save sensitive information in chats or unencrypted files: This includes private keys, recovery phrases, and passwords. \n
           Avoid sharing your information with others: No official service provider will ever ask for your private keys. \n
-        `;
+        `;*/
         
-        extra = {
+        extra = {};
+        
+        /*{
           xpub: xpub_main_avalanche_wallet,
           xpriv: responsePrivWalletAvalanche.data.key,
           mnemonic: mnemonic_main_avalanche_wallet,
           address: created_address_avalanche_wallet
-        };
+        };*/
       break;
       case "TX":
         messageSend = action?.error ? action?.error : `Please enter:\n\n
@@ -542,7 +586,7 @@ export class UsersService {
         amountToSend = action?.data?.amountTo ? action?.data?.amountTo : amountToSend;
         let tokenToTransfer = action?.data?.tokenToTransfer;
 
-        if(toAddress&&amountToSend&&tokenToTransfer){
+        if(toAddress&&amountToSend&&tokenToTransfer&&tokenToTransfer!='undefined'&&amountToSend!='undefined'&&amountToSend!='toAddress'){
           try{
             const responseTXAvalanche = await axios.post(`https://api.brianknows.org/api/v0/agent/transaction`, {
               prompt: `I want to transfer ${amountToSend} ${tokenToTransfer} to ${toAddress}`,
@@ -596,12 +640,38 @@ export class UsersService {
               }
             });
             extra = responseQueryTXAvalanche.data;
+            
+            const weiToAvax = (wei) => parseFloat(wei) / Math.pow(10, 18);
+
+            const valueInAvax = weiToAvax(extra.value).toFixed(4);
+
+            const gasCostInWei = extra.gasUsed * parseInt(extra.gasPrice, 10);
+            const gasCostInAvax = weiToAvax(gasCostInWei).toFixed(4);
+
+
+            let responseDateTXAvalanche:any = await axios.post(`https://api.avax.network/ext/bc/C/rpc`, {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "method": "eth_getBlockByNumber",
+              "params": ["0x"+Number(extra.blockNumber).toString(16), false]
+            },{
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+            responseDateTXAvalanche = parseInt(responseDateTXAvalanche.data.result.timestamp.replaceAll("0x",""),16);
+            responseDateTXAvalanche = new Date(responseDateTXAvalanche * 1000);
+            responseDateTXAvalanche = responseDateTXAvalanche.toLocaleString();
+
             messageSend = `
               Blockchain: C-Chain (${extra.chainId}) \n
               Transaction Hash: ${extra.transactionHash} \n
               Status: ${extra.status ? 'Success' : 'Failure'} \n
               Block: ${extra.blockNumber} \n
+              Date: ${responseDateTXAvalanche} \n
               From: ${extra.from} \n
+              Amount: ${valueInAvax} \n
+              Gas Spent: ${gasCostInAvax} AVAX \n
               To: ${extra.to} \n
               URL DETAILS: <a href="https://snowtrace.io/tx/${hash}" taget="_BLANK">https://snowtrace.io/tx/${hash}</a>
             `;
@@ -611,7 +681,8 @@ export class UsersService {
         }
       break;
       case "STAKING_FUNDS":
-        messageSend = action?.error && !Number(action?.data?.amountTo) ? action?.error : `Confirm your stake ${action?.data?.amountTo} AVAX with lending pool aave v2`;
+        messageSend = ((action?.error && !Number(action?.data?.amountTo)) || !Number(action?.data?.amountTo)) ? (action?.error||'Please confirm again your AVAX amount to stake') : `Confirm your stake ${action?.data?.amountTo} AVAX with lending pool aave v2`;
+        
         let amountToStaking = action?.data?.amountTo ? action?.data?.amountTo : 0;
 
         if(amountToStaking){
@@ -621,6 +692,8 @@ export class UsersService {
       case "SAVING_FUNDS":
         messageSend = action?.error && !Number(action?.data?.amountTo) ? action?.error : `Confirm your saving ${action?.data?.amountTo} AVAX  with lending pool aave v2`;
         let amountToSaving = action?.data?.amountTo ? action?.data?.amountTo : 0;
+
+        if(!Number(action?.data?.amountTo)) messageSend = `Please enter again your AVAX amount to saving with lending pool aave v2`;
 
         if(amountToSaving){
           extra = action?.data;
@@ -633,6 +706,8 @@ export class UsersService {
         let tokenTo = action?.data?.tokenTo ? action?.data?.tokenTo : false;
         let tokenToSymbol = action?.data?.tokenToSymbol ? action?.data?.tokenToSymbol : false;
         messageSend = action?.error ? action?.error : `Confirm your swap ${amountTo} ${tokenFromSymbol} to ${tokenToSymbol} with Trader Joe Contract`;
+
+        if(!Number(amountTo)||!tokenFrom||!tokenTo) messageSend = "Please confirm again your swap with token in, amount token in and token out."
 
         if(tokenFrom&&amountTo&&tokenTo&&tokenFromSymbol&&tokenToSymbol){
           extra = action?.data;
@@ -680,13 +755,215 @@ export class UsersService {
           }
         }
       break;
-      case "SWAP":
-      case "BUY_CRYPTO":
-        messageSend = "Let's do it";
+      case "QUERY_TX_ADDRESS":
+        messageSend = action?.error ? action?.error : "Please enter the address to query TX";
+        let addressQueryTx = action?.data?.addressQueryTx.length>0 ? action?.data?.addressQueryTx : "";
+
+        if(addressQueryTx){
+          try{
+            const responseQueryTx = await axios.get(`https://api.routescan.io/v2/network/mainnet/evm/all/address/${addressQueryTx}/transactions?ecosystem=avalanche&includedChainIds=43114&sort=desc&limit=250`, {
+              headers: {
+                'X-Brian-Api-Key': `${process.env.BRIAN_KNOWS_API_KEY}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const transactions = responseQueryTx.data.items;
+
+            let txs = transactions.map(tx => {
+              let avaxValue:any = parseFloat(tx.value) / Math.pow(10, 18);
+                  avaxValue = avaxValue.toFixed(4);
+              
+              const gasUsed = parseInt(tx.gasUsed, 10);
+              const gasPrice = parseInt(tx.gasPrice, 10);
+              
+              const totalGasCostWei = gasUsed * gasPrice;
+              
+              const totalGasCostAVAX = totalGasCostWei / Math.pow(10, 18);
+              
+              const formattedCost = totalGasCostAVAX.toFixed(4);
+              
+              return {
+                amount: avaxValue,
+                gasUsed: formattedCost,
+                network: "C-Chain",
+                type: tx.from === addressQueryTx ? 'out' : 'in',
+                hash: tx.id,
+              };
+            });
+
+            let volume = txs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+            let gasUsed = txs.reduce((sum, tx) => sum + parseFloat(tx.gasUsed), 0);
+
+            extra = {txs, volume, gasUsed };
+            messageSend = `The transactions has listed`;
+          }catch(error){
+            messageSend = (error?.response?.data?.message||'')+" "+(error?.response?.data?.cause||'');
+          }
+        }
       break;
+      case "SWAP":
+        messageSend = "Let's swap it";
+      break;
+      case "KNOWLEDGE_AVALANCHE":
+        messageSend = action?.error ? action?.error : action?.data?.answer;
+      break;
+      case "BUY_CRYPTO":
+        messageSend = "Let's buy it";
+      break;
+      case "CREATE_NFT":
+        let name = action?.data?.name ? action?.data?.name : false;
+        let description = action?.data?.description ? action?.data?.description : false;
+        let attributes = action?.data?.attributes ? action?.data?.attributes : false;
+        let recipient = action?.data?.recipient ? action?.data?.recipient : false;
+        
+        messageSend = (!name||!description||!attributes||!recipient) ? "Please enter name, description, attributes and address recipient" : `<a hef="#" style="cursor: pointer;" class="upload-file-nft">Please click here and select your image to create NFT <b>${name}</b></a>`;
+
+        if(name&&description&&attributes&&recipient){
+          extra = action?.data;
+          action.operation = "CREATE_NFT_UPLOAD";
+        }
+      break;
+      case "CREATE_NFT_UPLOAD":
+        action.data = JSON.parse(message);
+        let nameU = action?.data?.name ? action?.data?.name : false;
+        let descriptionU = action?.data?.description ? action?.data?.description : false;
+        let attributesU = action?.data?.attributes ? action?.data?.attributes : false;
+        let recipientU = action?.data?.recipient ? action?.data?.recipient : false;
+        
+        messageSend = (!nameU||!descriptionU||!attributesU||!recipientU) ? "Please enter name, description, attributes and address recipient" : `<a hef="#" style="cursor: pointer;" class="upload-file-nft">Please click here and select your image to create NFT <b>${nameU}</b></a>`;
+
+        if(nameU&&descriptionU&&attributesU&&recipientU&&imageToNFT){
+          extra = action?.data;
+          
+          let formData = new FormData();
+          let blob = new Blob([imageToNFT.buffer], { type: imageToNFT.mimetype })
+          formData.append('file', blob, 'imageToNFT.'+imageToNFT.mimetype.split("/")[1]);
+
+          const baseUrl = `${process.env.URL_CONEX_STAR}/fileblocks`;
+          
+          const response = await axios.post(
+            baseUrl,
+            formData,
+            {
+              headers: {
+                "Authorization": `Bearer ${process.env.AUTH_CONEXION_STAR}`
+              }
+            }
+          );
+
+          let bodyNFT = {
+            metadata: {
+              ...action?.data,
+              image: response.data.data.imgeUrlOpenWindows,
+            },
+            compressed: true,
+            sendNotification: true,
+            reuploadLinkedFiles: true,
+            recipient: action?.data?.recipient,
+            locale: "en-US",
+          };
+
+          const options = {
+            method: 'POST',
+            headers: {
+              'X-API-KEY': process.env.CROSSMINT_KEY, 
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bodyNFT)
+          };
+      
+          let NFTUser;
+          NFTUser = await fetch(`https://www.crossmint.com/api/2022-06-09/collections/${process.env.CROSSMINT_COLLECTION_USERS_NFT_ID}/nfts`, options);
+          NFTUser = await NFTUser.json();
+
+          const optionsGet = {
+            method: 'GET',
+            headers: {
+              'X-API-KEY': process.env.CROSSMINT_KEY, 
+              'Content-Type': 'application/json'
+            }
+          };
+
+
+          await sleep(40000);
+
+          let NFTUserID:any = await fetch(`https://www.crossmint.com/api/2022-06-09/collections/${process.env.CROSSMINT_COLLECTION_USERS_NFT_ID}/nfts/${NFTUser.id}`, optionsGet);
+          NFTUserID = await NFTUserID.json();
+          
+          NFTUser = `https://snowtrace.io/nft/${process.env.CONTRACT_ADDRESS_COLLECTION_USERS_NFT_ID}/${NFTUserID?.onChain?.tokenId}?chainid=43114&type=erc721`;
+
+          messageSend = `Your NFT <b>${nameU}</b> has minted by crossmint:\n\n
+          <b>NFT URL:</b> <a href="${NFTUser}" target="_BLANK">${NFTUser}</a>\n
+          <b>IMAGE URL:</b> <a href="${response.data.data.imgeUrlOpenWindows}" target="_BLANK">${response.data.data.imgeUrlOpenWindows}</a>\n
+          <image src="${response.data.data.imgeUrlOpenWindows}" style="width: 500px;border-radius: 5px;" />
+          `;
+          
+          extra = {NFTUserID, imageUrl: response.data.data.imgeUrlOpenWindows};
+        }
+      break;
+    }
+    
+    if(messageSend.indexOf("upload-file-nft")<0){
+      await this.prisma.usercreationchat.create({
+        data: {
+          id_user: user.id,
+          origin: 'BOT',
+          message: '',
+          data: JSON.stringify({data: messageSend, action, extra: (action?.operation!="WALLET"?extra:{
+            xpub: '',
+            xpriv: '',
+            mnemonic: '',
+            address: ''
+          }) })
+        },
+      });
     }
 
     return {success: true, data: messageSend, action, extra};
+  }
+  
+  async readCreateAvalancheOperationHis(
+    token: string
+  ) {
+    const decoded = this.jwtService.verify(token);
+    
+    const user = await this.prisma.users.findUnique({ where: { id: Number(decoded.id) } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    let data = await this.prisma.usercreationchat.findMany({
+      where: {
+        id_user: Number(user.id)
+      },
+      orderBy: {
+        id: 'asc'
+      }
+    });
+
+    return {success: true, data: data};
+  }
+  
+  async removeCreateAvalancheOperationHis(
+    token: string
+  ) {
+    const decoded = this.jwtService.verify(token);
+    
+    const user = await this.prisma.users.findUnique({ where: { id: Number(decoded.id) } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prisma.usercreationchat.deleteMany({
+      where: {
+        id_user: Number(user.id)
+      }
+    });
+
+    return {success: true};
   }
   
   async createAvalancheOperationBrianknows(

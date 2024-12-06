@@ -25,8 +25,17 @@ class CertifiedQuestionsService {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    return axios.request(config);
+    
+    try {
+      return axios.request(config);
+    } catch (error) {
+      if (error.response.status === 401) {  
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level'); 
+        window.location.href="/";
+      } 
+    }
   }
 
   sendAnswer({ answers, level, token }) {
@@ -39,8 +48,17 @@ class CertifiedQuestionsService {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    return axios.request(config);
+    
+    try {
+      return axios.request(config);
+    } catch (error) {
+      if (error.response.status === 401) {  
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level'); 
+        window.location.href="/";
+      } 
+    }
   }
 }
 

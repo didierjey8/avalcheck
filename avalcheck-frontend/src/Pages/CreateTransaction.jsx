@@ -19,7 +19,8 @@ const Button = ({ children, className, ...props }) => (
 
 export default function CreateTransaction() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showPrompts, setShowPrompts] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
+  const [showPrompts, setShowPrompts] = useState(false);
   const chatRef = useRef(null);
 
   const prompts = [
@@ -32,6 +33,11 @@ export default function CreateTransaction() {
       prompt: 'Create Wallet',
       image: '/images/brands/javaScript.png',
       text: 'Create Wallet with JavaScript',
+    },
+    {
+      prompt: 'Query wallet transactions',
+      image: '/images/brands/javaScript.png',
+      text: 'Query Wallet Transactions with JavaScript',
     },
     {
       prompt: 'Make Transaction',
@@ -88,7 +94,7 @@ export default function CreateTransaction() {
   };
 
   const handleNewMessages = (messages) => {
-    setShowPrompts(messages.length <= 1);
+    if(firstLoad==false) setShowPrompts(messages.length <= 1);
   };
 
   return (
@@ -97,8 +103,23 @@ export default function CreateTransaction() {
       <Chat
         ref={chatRef}
         type="creation"
+        firstLoad={firstLoad}
+        initOper={(messages)=>{
+          if(messages.length<=6){ 
+            setShowPrompts(true);
+            setFirstLoad(false);
+          }
+        }}
         initialMessageBot={'Hello, I am your avalcheck virtual assistant'}
         onMessagesChange={handleNewMessages}
+        setShowPrompts={()=>{
+          setShowPrompts(true);
+          setFirstLoad(true);
+        }}
+        setHidePrompts={()=>{
+          setShowPrompts(false);
+          setFirstLoad(false);
+        }}
       />
       <div className="w-full max-w-4xl mx-auto px-4">
         <div className="flex flex-wrap justify-center gap-3">

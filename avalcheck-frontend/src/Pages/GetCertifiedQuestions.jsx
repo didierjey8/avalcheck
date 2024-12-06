@@ -128,7 +128,7 @@ export default function GetCertifiedQuestions() {
       <div className="bg-[#0D0A14]">
         <ToastContainer theme="dark" position="top-right" />
         <Navbar></Navbar>
-        <div className="min-h-screen  text-white p-6 mt-20">
+        <div className="min-h-[calc(100vh-17vh)] text-white p-6 mt-20">
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Progress Bar */}
             <div className="space-y-2">

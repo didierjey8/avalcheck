@@ -1,8 +1,10 @@
+import { Express } from 'express';
 import { UsersService } from './users.service';
 import { certificateLevel } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../jwt-auth/jwt-auth.guard';
-import { Controller, Get, Post, Put, Body, UseGuards, Req, Param } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Post, Put, Delete, Body, UseGuards, Req, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
@@ -35,6 +37,7 @@ export class UsersController {
   
   @UseGuards(JwtAuthGuard)
   @Post('create')
+  @UseInterceptors(FileInterceptor('imageToNFT'))
   async createAvalancheOperation(
     @Req() req: any, 
     @Body('message') message: string, 
@@ -46,10 +49,30 @@ export class UsersController {
     @Body('fromPrivateKey') fromPrivateKey: string,
     @Body('nameL1') nameL1: string,
     @Body('tokenNameL1') tokenNameL1: string,
-    @Body('tokenSymbolL1') tokenSymbolL1: string
+    @Body('tokenSymbolL1') tokenSymbolL1: string,
+    @UploadedFile() imageToNFT: any
   ) {
     const token = req.headers.authorization?.split(' ')[1];
-    return this.usersService.createAvalancheOperation(token, firstMessage, message, action, hash, toAddress, amountToSend, fromPrivateKey, nameL1, tokenNameL1, tokenSymbolL1);
+    return this.usersService.createAvalancheOperation(token, firstMessage, message, action, hash, toAddress, amountToSend, fromPrivateKey, nameL1, tokenNameL1, tokenSymbolL1, imageToNFT);
+  }
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('create')
+  async readCreateAvalancheOperationHis(
+    @Req() req: any
+  ) {
+    const token = req.headers.authorization?.split(' ')[1];
+    return this.usersService.readCreateAvalancheOperationHis(token);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('create')
+  async removeCreateAvalancheOperationHis(
+    @Req() req: any
+  ) {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    return this.usersService.removeCreateAvalancheOperationHis(token);
   }
   
   @UseGuards(JwtAuthGuard)

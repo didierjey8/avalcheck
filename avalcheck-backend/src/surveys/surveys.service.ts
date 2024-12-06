@@ -155,7 +155,7 @@ export class SurveysService {
             'Content-Type': 'application/json'
           }
         });
-        transactionGiftHash = responseTXAvalanche.data.TransactionHash;
+        transactionGiftHash = responseTXAvalanche.data.txId;
       }catch(error){
         transactionGiftHash = (error?.response?.data?.message||'')+" "+(error?.response?.data?.cause||'');
       }

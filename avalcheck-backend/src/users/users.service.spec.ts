@@ -335,6 +335,7 @@ describe('UsersService', () => {
       const actionUser = 'TX';
       const toAddress = '0xWallet123';
       const contractName = '';
+      const network = 'mainnet';
   
       const result = await service.createAvalancheOperationBrianknows(
         token,
@@ -342,6 +343,7 @@ describe('UsersService', () => {
         actionUser,
         toAddress,
         contractName,
+        network
       );
   
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -391,6 +393,7 @@ describe('UsersService', () => {
       const actionUser = 'TX';
       const toAddress = '0xInvalidWallet';
       const contractName = '';
+      const network = 'mainnet';
   
       const result = await service.createAvalancheOperationBrianknows(
         token,
@@ -398,6 +401,7 @@ describe('UsersService', () => {
         actionUser,
         toAddress,
         contractName,
+        network
       );
   
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -419,6 +423,7 @@ describe('UsersService', () => {
         data: { contract: 'contract code' },
       };
   
+      const network = 'mainnet';
       jest.spyOn(jwtService, 'verify').mockReturnValue(mockDecoded);
       jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(mockUser);
       mockedAxios.post.mockResolvedValue(mockResponse);
@@ -429,6 +434,7 @@ describe('UsersService', () => {
         'CONTRACT',
         '',
         '',
+        network
       );
   
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -467,6 +473,7 @@ describe('UsersService', () => {
       jest.spyOn(jwtService, 'verify').mockReturnValue(mockDecoded);
       jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(mockUser);
       mockedAxios.post.mockRejectedValue(mockError);
+      const network = 'mainnet';
   
       const result = await service.createAvalancheOperationBrianknows(
         mockToken,
@@ -474,6 +481,7 @@ describe('UsersService', () => {
         'CONTRACT',
         '',
         '',
+        network
       );
   
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -507,6 +515,7 @@ describe('UsersService', () => {
       jest.spyOn(jwtService, 'verify').mockReturnValue(mockDecoded);
       jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(mockUser);
       mockedAxios.post.mockResolvedValue(mockResponse);
+      const network = 'mainnet';
     
       const result = await service.createAvalancheOperationBrianknows(
         mockToken,
@@ -514,6 +523,7 @@ describe('UsersService', () => {
         'COMPILE',
         '',
         'Test',
+        network
       );
     
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -555,6 +565,7 @@ describe('UsersService', () => {
       jest.spyOn(jwtService, 'verify').mockReturnValue(mockDecoded);
       jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(mockUser);
       mockedAxios.post.mockRejectedValue(mockError);
+      const network = 'mainnet';
     
       const result = await service.createAvalancheOperationBrianknows(
         mockToken,
@@ -562,6 +573,7 @@ describe('UsersService', () => {
         'COMPILE',
         '',
         'Test',
+        network
       );
     
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -598,6 +610,7 @@ describe('UsersService', () => {
       jest.spyOn(jwtService, 'verify').mockReturnValue(mockDecoded);
       jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(mockUser);
       mockedAxios.post.mockResolvedValue(mockResponse);
+      const network = 'mainnet';
     
       const result = await service.createAvalancheOperationBrianknows(
         mockToken,
@@ -605,6 +618,7 @@ describe('UsersService', () => {
         'EXPLAIN',
         '',
         '',
+        network
       );
     
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -645,6 +659,7 @@ describe('UsersService', () => {
       jest.spyOn(jwtService, 'verify').mockReturnValue(mockDecoded);
       jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(mockUser);
       mockedAxios.post.mockRejectedValue(mockError);
+      const network = 'mainnet';
     
       const result = await service.createAvalancheOperationBrianknows(
         mockToken,
@@ -652,6 +667,7 @@ describe('UsersService', () => {
         'EXPLAIN',
         '',
         '',
+        network
       );
     
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
@@ -688,9 +704,10 @@ describe('UsersService', () => {
       const actionUser = 'TX';
       const toAddress = '0xWallet123';
       const contractName = '';
+      const network = 'mainnet';
     
       await expect(
-        service.createAvalancheOperationBrianknows(token, message, actionUser, toAddress, contractName),
+        service.createAvalancheOperationBrianknows(token, message, actionUser, toAddress, contractName, network),
       ).rejects.toThrow(NotFoundException);
     
       expect(jwtService.verify).toHaveBeenCalledWith(mockToken);

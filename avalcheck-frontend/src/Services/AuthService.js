@@ -18,17 +18,27 @@ class authService {
 
   async auth({ data }) {
     const config = this.generateConfig({
-      data: data,
+      data,
       method: 'POST',
       url: '/users/signin',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
 
-    return axios.request(config);
+    try {
+      return await axios.request(config);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        // Limpiar localStorage y redirigir
+        localStorage.removeItem('phone_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('Certification_Level');
+        window.location.href = '/';
+      } else {
+        // Propagar otros errores
+        throw new Error(error.message || 'Request failed');
+      }
+    }
   }
-
 }
 
 export default authService;

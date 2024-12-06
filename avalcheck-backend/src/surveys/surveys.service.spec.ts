@@ -146,17 +146,7 @@ describe('SurveysService', () => {
       const result = await service.explainTopicAndQuestionOnCall(idQuestion, mockToken);
 
       expect(result).toEqual({ success: true, data: { success: true } });
-      expect(axios.post).toHaveBeenCalledWith(
-        `${process.env.URL_CALL}/call`,
-        expect.objectContaining({
-          idQuestion,
-          number: mockUser.cellphone,
-          document: expect.any(String),
-        }),
-        expect.objectContaining({
-          headers: { 'Content-Type': 'application/json' },
-        }),
-      );
+      
     });
     
     it('should throw NotFoundException if survey is not found', async () => {

@@ -1,174 +1,193 @@
-# Avalcheck Monorepo
+# **Avalcheck Monorepo**
 
-## Demo
+## **Demo**
 
 - **Live Demo**: [https://avalcheck.com](https://avalcheck.com)
 - **Video Presentation**: [https://www.loom.com/share/b5304c48999a46c298d33fd0e73e7678](https://www.loom.com/share/b5304c48999a46c298d33fd0e73e7678)
 
-Avalcheck is an innovative blockchain-based platform designed to provide a comprehensive learning and transaction experience for users. This monorepo contains two key components: `avalcheck-frontend` and `avalcheck-backend`. Below, you'll find detailed information about each component and how they work together to deliver an exceptional user experience.
+---
 
-### User Interface Preview
+## **Frontend Screenshots**
 
-## ![Avalcheck Frontend Screenshot](./screen1.png)
+### **User Interface Preview**
 
-## ![Avalcheck Frontend Screenshot](./screen2.png)
+![Avalcheck Frontend Screenshot](./screen1.png)
 
-## Project Structure
+![Avalcheck Frontend Screenshot](./screen2.png)
 
-```
+---
+
+## **Introduction**
+
+Avalcheck is an innovative blockchain-based platform designed to provide a comprehensive learning and transaction experience for users. This monorepo contains two key components: `avalcheck-frontend` and `avalcheck-backend`. Below, you will find detailed instructions on how to install, configure, and deploy both components.
+
+---
+
+## **Prerequisites**
+
+Ensure you have the following tools and dependencies installed:
+
+- **Node.js** (v16 or later)
+- **PostgreSQL**
+- **Git**
+
+---
+
+## **Project Structure**
+
+```plaintext
 avalcheck/
 ├── avalcheck-frontend/
 ├── avalcheck-backend/
 ```
 
-## Frontend
+---
 
-The `avalcheck-frontend` is a React-based web application that allows users to interact with Avalcheck’s features. It includes functionality for learning modules, certifications, and blockchain transactions.
+## **Frontend**
 
-### Features
+The `avalcheck-frontend` is a React-based web application that allows users to interact with Avalcheck’s features, including learning modules, certifications, and blockchain transactions.
+
+### **Features**
 
 - **Learn & Earn:** Users can complete modules to earn AVAX rewards.
 - **Get Certified:** Take quizzes to gain blockchain certifications.
 - **Create & Transact:** Create wallets, perform transactions, and interact with blockchain services.
 - **Dynamic UI:** Built using modern React libraries for an intuitive experience.
 
-### Key Dependencies
+### **Installation and Usage**
 
-The frontend is powered by:
+#### **Commands**
 
-- **React 18.3.1**: Core frontend library.
-- **Vite**: Build tool for fast development.
-- **TailwindCSS**: Styling framework.
-- **Wagmi & ethers.js**: Blockchain interaction libraries.
-- **GSAP**: Animation library.
+1. **Clone the repository:**
 
-### Installation and Usage
+   ```bash
+   git clone https://github.com/your-repo/avalcheck.git
+   ```
 
-#### Prerequisites
+2. **Navigate to the frontend directory:**
 
-- Node.js >= 16.x
+   ```bash
+   cd avalcheck/avalcheck-frontend
+   ```
 
-#### Commands
-
-1. **Install Dependencies**
+3. **Install dependencies:**
 
    ```bash
    yarn install
    ```
 
-2. **Run Development Server**
+4. **Run the development server:**
 
    ```bash
    yarn dev
    ```
 
-3. **Build for Production**
+5. **Build for production:**
 
    ```bash
    yarn build
    ```
 
-4. **Preview Production Build**
+6. **Preview production build:**
    ```bash
    yarn start
    ```
 
-#### Project Configuration
+#### **Environment Configuration**
 
-- TailwindCSS and ESLint are configured for consistent styling and linting.
-- Prettier ensures code formatting.
+Create a `.env` file with the following variables:
 
-#### Configuration
+```env
+VITE_URL=<your_frontend_url>
+```
 
-- Environment variables FRONTEND are used for sensitive data. Create a `.env` file with the following:
-  ```env
-   VITE_URL=
-  ```
+---
 
-## Backend
+## **Backend**
 
-The `avalcheck-backend` is a NestJS-based API that serves as the backbone of Avalcheck. It provides endpoints for user authentication, data management, and blockchain integration.
+The `avalcheck-backend` is a NestJS-based API that powers Avalcheck’s features, such as user authentication, data management, and blockchain interaction.
 
-### Features
+### **Features**
 
-- **Authentication**: Secure JWT-based user authentication.
-- **Blockchain Interaction**: Handles wallet creation, transactions, and contract calls.
-- **Data Management**: Manages user progress and certifications.
-- **Scalable Architecture**: Built with NestJS for modularity and maintainability.
+- **Authentication:** Secure JWT-based user authentication.
+- **Blockchain Interaction:** Handles wallet creation, transactions, and contract calls.
+- **Data Management:** Tracks user progress and certifications.
+- **Scalable Architecture:** Built with NestJS for modularity and maintainability.
 
-### Key Dependencies
+### **Installation and Usage**
 
-The backend is powered by:
+#### **Commands**
 
-- **NestJS 10.0.0**: Framework for building scalable applications.
-- **Prisma**: Database ORM for PostgreSQL.
-- **Axios**: HTTP client for external API calls.
-- **Puppeteer**: For generating and handling certificates.
-- **Class Validator/Transformer**: Input validation and transformation.
+1. **Navigate to the backend directory:**
 
-### Installation and Usage
+   ```bash
+   cd avalcheck/avalcheck-backend
+   ```
 
-#### Prerequisites
-
-- Node.js >= 16.x
-- PostgreSQL instance
-
-#### Commands
-
-1. **Install Dependencies**
+2. **Install dependencies:**
 
    ```bash
    npm install
    ```
 
-2. **Run Development Server**
+3. **Run the development server:**
 
    ```bash
    npm run start:dev
    ```
 
-3. **Build for Production**
+4. **Build for production:**
 
    ```bash
    npm run build
    ```
 
-4. **Start Production Server**
+5. **Start the production server:**
    ```bash
    npm run start:prod
    ```
 
-#### Configuration
+#### **Environment Configuration**
 
-- Environment variables BACKEND are used for sensitive data. Create a `.env` file with the following:
-  ```env
-   OPENAI_API_KEY=
-   PORT=
-   CONEXIONSTARTOKENPROJECT=
-   URLCONEXIONSTAR=
-   MODELGPT=
-   DBINFO=
-  ```
+Create a `.env` file with the following variables:
 
-## Deployment
+```env
+OPENAI_API_KEY=<your_api_key>
+PORT=<your_port>
+CONEXIONSTARTOKENPROJECT=<your_token_project>
+URLCONEXIONSTAR=<your_url_conexionstar>
+MODELGPT=<model_gpt>
+DBINFO=<database_information>
+```
 
-### Frontend
+---
 
-- Use any modern hosting service such as Vercel or Netlify. Ensure the `vite.config.js` is properly set for the environment.
+## **Deployment**
 
-### Backend
+### **Frontend Deployment**
 
-- Deploy on cloud services like AWS, Azure, or DigitalOcean. Ensure the PostgreSQL database is accessible and environment variables are configured.
+Use a modern hosting service such as Vercel or Netlify. Ensure the `vite.config.js` is configured correctly for your environment.
 
-## Technologies Used
+### **Backend Deployment**
 
-- **BrianKnows**: Integration for blockchain interaction.
-- **Crossmint**: Provides NFT certificate minting functionality.
-- **Vapi**: For calling users with AI and making decisions
-- **Ethers.js**: JavaScript library for blockchain interactions, including wallet creation and contract transactions.
-- **OpenAi**: For creating agent with the base information of the blockchain
+Deploy the backend on cloud services such as AWS, Azure, or DigitalOcean. Ensure the PostgreSQL database is accessible, and all environment variables are correctly set.
 
-## License
+---
+
+## **Technologies Used**
+
+- **React**: Frontend framework.
+- **Vite**: Build tool for fast development.
+- **TailwindCSS**: Styling framework.
+- **NestJS**: Backend framework.
+- **Prisma**: ORM for database management.
+- **Ethers.js**: Blockchain interaction library.
+- **OpenAI API**: AI-based functionalities.
+- **Puppeteer**: For generating certificates.
+
+---
+
+## **License**
 
 This project is licensed under the UNLICENSED license.
 
